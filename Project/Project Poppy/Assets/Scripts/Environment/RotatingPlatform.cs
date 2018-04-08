@@ -35,7 +35,7 @@ public class RotatingPlatform : DynamicPlatform
         startingPosition = this.transform.eulerAngles;
         targetPosition = new Vector3(startingPosition.x,
                                      startingPosition.y,
-                                     startingPosition.z + 180);
+                                     startingPosition.z + 90);
 
         timeStarted = Time.time;
         isMoving = true;
