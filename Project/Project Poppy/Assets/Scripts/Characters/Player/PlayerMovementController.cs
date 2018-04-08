@@ -10,6 +10,12 @@ public class PlayerMovementController : MonoBehaviour
     private float gravity = -6f;
     private Vector3 velocity;
 
+    private Vector2 directionInput;
+
+    //X Direction smoothing
+    private float velocityXSmoothing;
+    private float accelerationTimeGrounded = .1f;
+
     private DynamicPlatform currentPlatform;
     private Transform originalParent;
 
@@ -28,30 +34,43 @@ public class PlayerMovementController : MonoBehaviour
         movementState = MovementState.Free;
     }
 
+    public void SetDirectionInput(Vector2 input)
+    {
+        directionInput = input;
+    }
+
     private void Update()
     {
         if(movementState == MovementState.Free)
         {
-            float xInput = Input.GetAxisRaw("Horizontal");
-            float yInput = Input.GetAxisRaw("Vertical");
+            if(controller.collisions.above || controller.collisions.below)
+            {
+                velocity.y = 0;
+            }
+
+            float xInput = directionInput.x;
+            float yInput = directionInput.y;
+
+            float targetVelocityX = 0;
 
             if (controller.GetObjectOrientation() == 0)
             {
-                velocity.x = xInput * 6f; 
+                targetVelocityX = xInput * 6f; 
             }
             else if (controller.GetObjectOrientation() == 180)
             {
-                velocity.x = -xInput * 6f;
+                targetVelocityX = -xInput * 6f;
             }
             else if (controller.GetObjectOrientation() == 90)
             {
-                velocity.x = yInput * 6f;
+                targetVelocityX = yInput * 6f;
             }
             else if (controller.GetObjectOrientation() == 270)
             {
-                velocity.x = -yInput * 6f;
+                targetVelocityX = -yInput * 6f;
             }
 
+            velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing,accelerationTimeGrounded);
             velocity.y += gravity * Time.deltaTime;
             controller.Move(velocity * Time.deltaTime);
         }

@@ -2,42 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(BoxCollider2D))]
-public class Controller2D : MonoBehaviour
-{
-    public LayerMask collisionMask;
-
-    private BoxCollider2D objCollider;
-    private RayCastOrigins raycastOrigins;
-
-    private Bounds bounds;
-    private const float skinWidth = .015f;
-
-    public int horizontalRayCount = 4;
-    public int verticalRayCount = 4;
-
-    private float horizontalRaySpacing;
-    private float verticalRaySpacing;
-
-    private void Start()
-    {
-        objCollider = this.GetComponent<BoxCollider2D>();
-        CalculateRaySpacing();
-    }
+public class Controller2D : RaycastController
+{ 
+    public CollisionInfo collisions; 
 
     public void Move(Vector3 velocity)
     {
         UpdateRaycastOrigins();
 
+        collisions.Reset();
 
         if (velocity.x != 0)
             SideOfObjectCollisions(ref velocity);
 
         if (velocity.y != 0)
             TopAndBottomOfObjectCollisions(ref velocity);
-        
-
-            
 
         transform.Translate(velocity);
     }
@@ -92,6 +71,9 @@ public class Controller2D : MonoBehaviour
             {
                 velocity.y = (hit.distance - skinWidth) * gravityDirection;
                 rayLength = hit.distance;
+
+                collisions.below = gravityDirection == -1;
+                collisions.above = gravityDirection == 1;
             } 
         }
     }
@@ -146,85 +128,23 @@ public class Controller2D : MonoBehaviour
             {
                 velocity.x = (hit.distance - skinWidth) * sideDirection;
                 rayLength = hit.distance;
+
+                collisions.left = sideDirection == -1;
+                collisions.right = sideDirection == 1;
             } 
         }
     }
 
-    private void UpdateRaycastOrigins()
+
+    public struct CollisionInfo
     {
-        bounds = objCollider.bounds;
-        bounds.Expand(skinWidth * -2f);
+        public bool above, below;
+        public bool left, right;
 
-        SetRaycastOriginsBasedOnRotation();
-    }
-
-    private void SetRaycastOriginsBasedOnRotation()
-    {
-        float orientation = GetObjectOrientation();
-
-        if(orientation == 0)
+        public void Reset()
         {
-            raycastOrigins.bottomLeft = new Vector2(bounds.min.x, bounds.min.y);
-            raycastOrigins.bottomRight = new Vector2(bounds.max.x, bounds.min.y);
-            raycastOrigins.topLeft = new Vector2(bounds.min.x, bounds.max.y);
-            raycastOrigins.topRight = new Vector2(bounds.max.x, bounds.max.y);
+            above = below = false;
+            left = right = false;
         }
-        else if(orientation == 180)
-        {
-            raycastOrigins.bottomLeft = new Vector2(bounds.max.x, bounds.max.y);
-            raycastOrigins.bottomRight = new Vector2(bounds.min.x, bounds.max.y);
-            raycastOrigins.topLeft = new Vector2(bounds.min.x, bounds.min.y);
-            raycastOrigins.topRight = new Vector2(bounds.max.x, bounds.min.y);
-        }
-        else if(orientation == 90)
-        {
-            raycastOrigins.bottomLeft = new Vector2(bounds.max.x, bounds.min.y);
-            raycastOrigins.bottomRight = new Vector2(bounds.max.x, bounds.max.y);
-            raycastOrigins.topLeft = new Vector2(bounds.min.x, bounds.min.y);
-            raycastOrigins.topRight = new Vector2(bounds.min.x, bounds.max.y);
-        }
-        else if(orientation == 270)
-        {
-            raycastOrigins.bottomLeft = new Vector2(bounds.min.x, bounds.max.y);
-            raycastOrigins.bottomRight = new Vector2(bounds.min.x, bounds.min.y);
-            raycastOrigins.topLeft = new Vector2(bounds.max.x, bounds.max.y);
-            raycastOrigins.topRight = new Vector2(bounds.max.x, bounds.min.y);
-        }
-
-    }
-
-    public void CalculateRaySpacing()
-    {
-        bounds = objCollider.bounds;
-        bounds.Expand(skinWidth * -2f);
-
-        horizontalRayCount = Mathf.Clamp(horizontalRayCount, 2, int.MaxValue);
-        verticalRayCount = Mathf.Clamp(verticalRayCount, 2, int.MaxValue);
-
-        float orientation = GetObjectOrientation();
-
-        if(orientation == 0 || orientation == 180)
-        {
-            horizontalRaySpacing = bounds.size.y / (horizontalRayCount - 1);
-            verticalRaySpacing = bounds.size.x / (verticalRayCount - 1);
-        }
-        if(orientation == 90 || orientation == 270)
-        {
-            horizontalRaySpacing = bounds.size.x / (horizontalRayCount - 1);
-            verticalRaySpacing = bounds.size.y / (verticalRayCount - 1);
-        }
-      
-    }
-
-    struct RayCastOrigins
-    {
-        public Vector2 topLeft, topRight;
-        public Vector2 bottomLeft, bottomRight;
-    }
-
-    public float GetObjectOrientation()
-    {
-        float rotation = Mathf.Abs(Mathf.RoundToInt(this.transform.eulerAngles.z));
-        return rotation;
     }
 }
