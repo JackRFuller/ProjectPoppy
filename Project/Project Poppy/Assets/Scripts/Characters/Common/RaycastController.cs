@@ -15,14 +15,20 @@ public class RaycastController : MonoBehaviour
     protected float verticalRaySpacing;
 
     protected BoxCollider2D objCollider;
+    public BoxCollider2D ObjCollider { get { return objCollider; } }
     protected RayCastOrigins raycastOrigins;
 
     protected const float skinWidth = .015f;
     protected Bounds bounds;
 
-    protected virtual void Start()
+    protected virtual void Awake()
     {
         objCollider = this.GetComponent<BoxCollider2D>();
+        
+    }
+
+    protected virtual void Start()
+    {
         CalculateRaySpacing();
     }
 

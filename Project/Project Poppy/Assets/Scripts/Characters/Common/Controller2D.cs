@@ -4,7 +4,32 @@ using UnityEngine;
 
 public class Controller2D : RaycastController
 { 
-    public CollisionInfo collisions; 
+    public CollisionInfo collisions;
+    private Transform hitTransform;
+    public Transform GetHitTransform { get { return hitTransform; } }
+
+    private float colliderXOriginal;
+
+    protected override void Start()
+    {
+        base.Start();
+
+        colliderXOriginal = objCollider.size.x;
+    }
+
+    public void UpdateCollider(bool increasingSize,float XToAdd)
+    {
+        if(increasingSize)
+        {
+            objCollider.size = new Vector2(objCollider.size.x + XToAdd, 1);
+        }
+        else
+        {
+            objCollider.size =  new Vector2(colliderXOriginal,1);
+        }
+
+        CalculateRaySpacing();
+    }
 
     public void Move(Vector3 velocity)
     {
@@ -57,6 +82,8 @@ public class Controller2D : RaycastController
             collisionRayDirection = Vector2.right;
         }
 
+        int groundedCount = 0;
+
         for (int i = 0; i < verticalRayCount; i++)
         {
             //If we're moving down or if we're moving up
@@ -66,16 +93,32 @@ public class Controller2D : RaycastController
 
             RaycastHit2D hit = Physics2D.Raycast(collisionRay.origin, collisionRay.direction, rayLength, collisionMask);                               
             Debug.DrawRay(collisionRay.origin, collisionRay.direction, Color.red);
-                
-            if(hit)
-            {
-                velocity.y = (hit.distance - skinWidth) * gravityDirection;
-                rayLength = hit.distance;
 
+            if (hit)
+            {
                 collisions.below = gravityDirection == -1;
                 collisions.above = gravityDirection == 1;
+
+                groundedCount++;
+                velocity.y = (hit.distance - skinWidth) * gravityDirection;
+
+                if(i == verticalRayCount)
+                {
+                    rayLength = hit.distance;
+                }
             } 
+
         }
+        
+        if (groundedCount == verticalRayCount)
+        {
+            collisions.fullyGrounded = true;
+        }
+        else
+        {
+            collisions.fullyGrounded = false;
+        }
+        
     }
 
     /// <summary>
@@ -114,6 +157,8 @@ public class Controller2D : RaycastController
             collisionRayDirection = Vector2.down;
         }
 
+        int collisionCount = 0;
+
         for (int i = 0; i < horizontalRayCount; i++)
         {
             //If we're moving left or if we're moving right
@@ -126,12 +171,29 @@ public class Controller2D : RaycastController
 
             if (hit)
             {
+                collisionCount++;
+
+                hitTransform = hit.transform;
+
+                if (collisionCount == horizontalRayCount)
+                {
+                    
+                }    
+                
+                
                 velocity.x = (hit.distance - skinWidth) * sideDirection;
                 rayLength = hit.distance;
 
                 collisions.left = sideDirection == -1;
                 collisions.right = sideDirection == 1;
-            } 
+                
+               
+            }             
+        }
+
+        if(collisionCount < horizontalRayCount)
+        {
+            //hitTransform = null;
         }
     }
 
@@ -140,6 +202,7 @@ public class Controller2D : RaycastController
     {
         public bool above, below;
         public bool left, right;
+        public bool fullyGrounded;
 
         public void Reset()
         {

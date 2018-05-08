@@ -7,7 +7,7 @@ public class RotatingPlatform : DynamicPlatform
     private Vector3 targetPosition;
     private Vector3 startingPosition;
 
-    private float speed = 0.5f;
+    private float speed = 1.5f;
     private float timeStarted;
     private bool isMoving;
 

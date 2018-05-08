@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cee90953068d74348b5118f578be8728, type: 3}
+  m_Name: Level 1
+  m_EditorClassIdentifier: 
+  levelGeometry: {fileID: 1237979387996552, guid: 5b8f922d8dcaaf74a97be28543deb27c,
+    type: 2}
+  levelSpawnPoint: {x: 0, y: 0, z: 0}
+  levelRotation: {x: 0, y: 0, z: 0}
