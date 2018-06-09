@@ -9,11 +9,15 @@ public class PlayerAnimationController : MonoBehaviour
     [SerializeField]
     private Transform playerMeshTransform;
 
-    public void SetPlayerMovementSpeed(float speed, bool isPushing)
+    public void SetPlayerMovementSpeed(float speed, bool isMovingObject, bool isPushing)
     {
-        speed = Mathf.Abs(speed);
-        playerAnimator.SetInteger("moveSpeed", (int)speed);        
-        playerAnimator.SetBool("isPushing", isPushing);
+        if (speed == 0)
+            isMovingObject = false;
+
+        playerAnimator.SetBool("isPushingObject", isPushing);
+        playerAnimator.SetBool("isMovingObject", isMovingObject);
+        playerAnimator.SetInteger("moveSpeed",(int)speed);        
+        
     }
 
     public void SetPlayerMeshRotationBasedOnVelocity(Vector3 velocity)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider2D))]
-public class RaycastController : MonoBehaviour
+public class RaycastController : Entity
 {
     [SerializeField]
     protected LayerMask collisionMask;

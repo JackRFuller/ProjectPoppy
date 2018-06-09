@@ -5,59 +5,49 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
     [SerializeField]
-    private Transform player;
-
-    [SerializeField]
     private LevelData[] levels;
-    private List<int> loadedLevels;
-
-    //Camera Attributes
-    private CameraController cameraController;
-
     private LevelHandler currentLevel;
-    private int playerSpawnPointInLevel;
+
+    private Dictionary<Vector2, LevelData> loadedLevels;
+
+    private Vector2 currentLevelIndex = Vector2.zero;
+    public Vector2 CurrentLevelIndex { get { return currentLevelIndex;} }
+
+    [Header("Important Level Objects")]
+    [SerializeField]
+    private PlayerController playerController;
+    public PlayerController PlayerController { get { return playerController;} }
+    [SerializeField] private CameraController cameraController;
+    public CameraController CameraController { get { return cameraController;} }
+
 
     private void Start()
     {
-        cameraController = Camera.main.GetComponent<CameraController>();
+        loadedLevels = new Dictionary<Vector2, LevelData>();
     }
 
-    //Checks if level has been loaded in and if not loads in level
-    public void StartMovementToNextLevel(int levelID, int spawnPointID)
+    public void SpawnInNextLevel(Vector2 newLevelIndex)
     {
-        playerSpawnPointInLevel = spawnPointID;
+        currentLevelIndex = newLevelIndex;
 
-        if (loadedLevels == null)
-            loadedLevels = new List<int>();
+        if (loadedLevels.ContainsKey(currentLevelIndex))
+            return;
+        Debug.Log(newLevelIndex);
+        LevelData newLevel = null;
 
-        LevelData level = levels[levelID - 1];        
-
-        if (!loadedLevels.Contains(levelID))
+        for (int i = 0; i < levels.Length; i++)
         {
-            GameObject levelGeometry = level.levelGeometry;
-            GameObject newLevel = Instantiate(levelGeometry, level.levelSpawnPoint, levelGeometry.transform.rotation, this.transform.root);
-            loadedLevels.Add(levelID);
+            if (levels[i].levelIndex == newLevelIndex)
+            {
+                newLevel = levels[i];
+                break;
+            }
         }
 
-        currentLevel = level.levelGeometry.GetComponent<LevelHandler>();
+        if(newLevel == null)
+            Debug.LogError("NO LEVEL FOUND TO LOAD");
 
-        StartMovingCameraToNextLevel(level);
+        GameObject levelGeo = Instantiate(newLevel.levelGeometry,newLevel.levelSpawnPoint,Quaternion.identity,this.transform);
+        loadedLevels.Add(currentLevelIndex,newLevel);
     }
-
-    public void StartMovingCameraToNextLevel(LevelData targetLevel)
-    {
-        cameraController.MoveToPosition(targetLevel.levelSpawnPoint, targetLevel.levelRotation);
-    }
-
-    public void SpawnPlayerAtNewPosition()
-    {
-        StartCoroutine(WaitToRevealPlayer());
-    }
-
-    IEnumerator WaitToRevealPlayer()
-    {
-        yield return new WaitForSeconds(0.5f);
-        currentLevel.SetPlayerToSpawnPoint(player.GetComponent<PlayerMovementController>(), playerSpawnPointInLevel);        
-    }
-	
 }

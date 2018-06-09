@@ -8,6 +8,9 @@ TagManager:
   - DynamicPlatform
   - Character
   - Weight
+  - DynamicObject
+  - Interactable
+  - MoveableObject
   layers:
   - Default
   - TransparentFX
@@ -21,8 +24,8 @@ TagManager:
   - Player
   - Weight
   - SpawnPoint
-  - 
-  - 
+  - Invisible
+  - Interactable
   - 
   - 
   - 

@@ -20,7 +20,7 @@ public class PressurePlateController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.tag == "Character" || collision.tag == "Weight")
+        if(collision.tag == "Character" || collision.tag == "MoveableObject")
         {
             isActive = true;
             plateAnimator.SetBool("Activated", isActive);
@@ -35,7 +35,7 @@ public class PressurePlateController : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if(collision.tag == "Character" || collision.tag == "Weight")
+        if(collision.tag == "Character" || collision.tag == "MoveableObject")
         {
             isActive = false;
             plateAnimator.SetBool("Activated", isActive);

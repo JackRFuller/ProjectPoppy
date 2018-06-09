@@ -1,113 +1,81 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
-public class CameraMovementBehaviour : MonoBehaviour
+public class CameraMovementBehaviour : CameraBehaviour
 {
-    private CameraController cameraController;
+    public UnityAction startedMoving;
+    public UnityAction reachDestination;
 
-    [Header("Moving Curves")]
     [SerializeField]
-    private AnimationCurve movingCurve;
-    [SerializeField]
-    private AnimationCurve rotatingCurve;
+    private Vector3Lerping lerpingAttributes;
 
-    private Vector3 startingPosition;
-    private Vector3 targetPosition;
-    private const float movementSpeed = 3;
+    private const float xOffset = 35.5f;
+    private const float yOffset = 16.0f;
 
-    private Vector3 startingRotation;
-    private Vector3 targetRotation;
-    private const float rotationSpeed = 2.5f;
-
-    private float timeStarted;
-
-    private MovementState movementState = MovementState.Fixed;
-    private enum MovementState
+    /// <summary>
+    /// Starts Camera Scrolling
+    /// </summary>
+    /// <param name="direction">0 = right, 1 = left, 2 = top, 3 = bottom</param>
+    public void InitCameraScrolling(Vector2 direction)
     {
-        Fixed,
-        Rotating,
-        Moving,
-    }
+        lerpingAttributes.pointA = this.transform.position;
+        Vector3 targetPosition = this.transform.position;
 
-    public void InitMovement(Vector3 targetPos, Vector3 targetRot)
-    {
-        if (cameraController == null)
-            cameraController = this.GetComponent<CameraController>();
+        Vector2 currentLevelIndex = Manager.Instance.LevelManager.CurrentLevelIndex;
 
-        startingPosition = this.transform.position;
-        startingRotation = this.transform.eulerAngles;
-
-        targetPosition = new Vector3(targetPos.x,targetPos.y,this.transform.position.z);
-        targetRotation = targetRot;
-
-        timeStarted = Time.time;
-
-        float tempZ = -targetRot.z;
-        Vector3 tempRot = new Vector3(0, 0, 360 - tempZ);
-
-
-        Debug.Log(tempRot);
-        Debug.Log(this.transform.eulerAngles);
-
-        if (tempRot == this.transform.eulerAngles)
+        if (currentLevelIndex.x != direction.x)
         {
-            movementState = MovementState.Moving;
+            if(direction.x > currentLevelIndex.x)
+                targetPosition.x = this.transform.position.x + xOffset;
+            else
+            {
+                targetPosition.x = this.transform.position.x - xOffset;
+            }
         }
-        else
+        else if(currentLevelIndex.y != direction.y)
         {
-            movementState = MovementState.Rotating;
+            if(direction.y > currentLevelIndex.y)
+                targetPosition.y = this.transform.position.y + yOffset;
+            else
+            {
+                targetPosition.y = this.transform.position.y - yOffset;
+            }
         }
 
-       
-        this.enabled = true;
+        lerpingAttributes.pointB = targetPosition;
+        lerpingAttributes.timeStarted = Time.time;
+
+        TurnOnComponent();
+
+        if(startedMoving != null)
+            startedMoving();
+
+        Debug.Log("Moving");
+        Debug.Log(lerpingAttributes.pointA + " + " + lerpingAttributes.pointB);
     }
 
     private void Update()
     {
-        switch(movementState)
-        {            
-            case MovementState.Rotating:
-                RotateCamera();               
-                break;
-            case MovementState.Moving:
-                MoveCamera();
-                break;
-        }
-    }
-
-    private void RotateCamera()
-    {
-        float timeSinceStarted = Time.time - timeStarted;
-        float percenatgeComplete = timeSinceStarted / rotationSpeed;
-
-        Vector3 newRot = Vector3.Lerp(startingRotation, targetRotation, rotatingCurve.Evaluate(percenatgeComplete));
-        this.transform.rotation = Quaternion.Euler(newRot);
-
-        if(percenatgeComplete >= 1.0f)
-        {
-            timeStarted = Time.time;
-            movementState = MovementState.Moving;
-        }
+        MoveCamera();
     }
 
     private void MoveCamera()
     {
-        float timeSinceStarted = Time.time - timeStarted;
-        float percenatgeComplete = timeSinceStarted / movementSpeed;
+        float percentageComplete = lerpingAttributes.ReturnLerpProgress();
+        Vector3 newPos = Vector3.Lerp(lerpingAttributes.pointA,lerpingAttributes.pointB,lerpingAttributes.lerpCurve.Evaluate(percentageComplete));
 
-        Vector3 newPos = Vector3.Lerp(startingPosition, targetPosition, movingCurve.Evaluate(percenatgeComplete));
-        this.transform.position = newPos;
+        SetPosition(newPos);
 
-        if(percenatgeComplete >= 1.0f)
+        if (percentageComplete >= 1.0f)
         {
-            movementState = MovementState.Fixed;
-            cameraController.CameraIsInNewPosition();
-            this.enabled = false;
+            TurnOffComponent();
+
+            if (reachDestination != null)
+                reachDestination();
         }
     }
-
-
 
 
 }

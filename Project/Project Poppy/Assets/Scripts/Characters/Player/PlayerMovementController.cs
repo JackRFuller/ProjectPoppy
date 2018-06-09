@@ -2,13 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Controller2D))]
-public class PlayerMovementController : MonoBehaviour
+public class PlayerMovementController : Controller2D
 {
-    private ScreenwrappingBehaviour screenWrapController;
-    private PlayerAnimationController playerAnimController;
-    private Controller2D controller;
-
+    private PlayerController playerController;
     private float playerMovementSpeed = 1.5f;
     private float gravity = -6f;
     private Vector3 velocity;
@@ -19,7 +15,7 @@ public class PlayerMovementController : MonoBehaviour
     private float velocityXSmoothing;
     private float accelerationTimeGrounded = .05f;
 
-    private DynamicPlatform currentPlatform;
+    private PlatformController currentPlatform;
     private Transform originalParent;
 
     private MovementState movementState;
@@ -34,21 +30,21 @@ public class PlayerMovementController : MonoBehaviour
 
     private bool isFalling;
 
-    //Screen Wrapping
-    private bool isWrappingX = false;
-    private bool isWrappingY = false;
-    private int wrappingCount = 0;
-
     private Transform lastPushedObject;
     private bool hasPushingInput;
-    private PuzzleObjectMovementController puzzleObjController;
 
+    private Transform lastInteractedObject;
+    private float lastXInput;
+    private bool isSuccessfullyInteracting;
+    private bool isMovingObject;
+    private bool hasUpdatedColliderSizeAndPosition;
+    private float moveableObjectSide; // Deteremines what side of the player the object is on
 
-    private void Start()
+    protected override void Start()
     {
-        controller = GetComponent<Controller2D>();
-        screenWrapController = this.GetComponent<ScreenwrappingBehaviour>();
-        playerAnimController = this.GetComponent<PlayerAnimationController>();
+        base.Start();
+
+        playerController = GetComponent<PlayerController>();
         mainCamera = Camera.main;
 
         originalParent = this.transform.root;
@@ -64,7 +60,7 @@ public class PlayerMovementController : MonoBehaviour
     {
         if(movementState == MovementState.Free)
         {
-            if(controller.collisions.above || controller.collisions.below)
+            if(collisions.above || collisions.below)
             {
                 velocity.y = 0;
             }
@@ -74,82 +70,81 @@ public class PlayerMovementController : MonoBehaviour
 
             float targetVelocityX = 0;
 
-            if(controller.collisions.below)
+            if(collisions.below)
             {
-                if (controller.GetObjectOrientation() == 0)
+                if (GetObjectOrientation() == 0)
                 {
-                    targetVelocityX = xInput * playerMovementSpeed;
+                    targetVelocityX = xInput;
                 }
-                else if (controller.GetObjectOrientation() == 180)
+                else if (GetObjectOrientation() == 180)
                 {
-                    targetVelocityX = -xInput * playerMovementSpeed;
+                    targetVelocityX = -xInput;
                 }
-                else if (controller.GetObjectOrientation() == 90)
+                else if (GetObjectOrientation() == 90)
                 {
-                    targetVelocityX = yInput * playerMovementSpeed;
+                    targetVelocityX = yInput;
                 }
-                else if (controller.GetObjectOrientation() == 270)
+                else if (GetObjectOrientation() == 270)
                 {
-                    targetVelocityX = -yInput * playerMovementSpeed;
+                    targetVelocityX = -yInput;
                 }
             }
+
+            //Used for animation control
+            float playerInput = Mathf.Abs(targetVelocityX);
+
+            if(targetVelocityX != 0)
+                lastXInput = targetVelocityX;
+
+            targetVelocityX *= playerMovementSpeed;            
 
             bool isPushing = false;
 
-            if (Mathf.Abs(targetVelocityX) > 0)
-            {              
-                if (hasPushingInput)
+            if (GetIfPlayerIsPushingObject(targetVelocityX))
+            {
+                if (Mathf.Abs(targetVelocityX) > 0)
                 {
-                    Debug.Log("Pushing Input");
-                    if (controller.GetHitTransform != null)
+                    if(!hasUpdatedColliderSizeAndPosition)
                     {
-                        if (controller.GetHitTransform.tag == "Weight")
-                        {
-                            Debug.Log("Found Crate");
-                            if (puzzleObjController == null)
-                            {
-                                puzzleObjController = controller.GetHitTransform.GetComponent<PuzzleObjectMovementController>();
-                                controller.UpdateCollider(true, puzzleObjController.GetBoxCollider2D.size.x);
-                                lastPushedObject = controller.GetHitTransform;                               
-                            }
-
-                            if(lastPushedObject)
-                                lastPushedObject.transform.parent = this.transform;
-
-                            puzzleObjController.PlayerPushingWeight();
-                            isPushing = true;
-                            targetVelocityX *= 0.5f;
-                        }
+                       float newSize = playerController.Interactable.MovementController.ObjCollider.size.x;
+                       UpdateColliderSizeAndPosition(newSize,moveableObjectSide);  
+                       hasUpdatedColliderSizeAndPosition = true;
                     }
+                     
+                    isPushing = GetPositionInRelationToPushableObject(targetVelocityX);
+                    isMovingObject = true;
+                    targetVelocityX *= 0.5f;
+                    playerController.Interactable.MovementController.SetDirectionInput(targetVelocityX);
                 }
-
-                else
+                
+            }
+            else
+            {
+                if(hasUpdatedColliderSizeAndPosition)
                 {
-                    if(puzzleObjController != null)
-                    {                        
-                        lastPushedObject.transform.parent = null;
-                        puzzleObjController.PlayerDisconnectFromWeight();
-                        puzzleObjController = null;                        
-                    }
-                    
+                    ResetColliderSizeAndPosition();
+                    hasUpdatedColliderSizeAndPosition = false;
                 }
-
+                isMovingObject = false;
+                DetectedInteractable();
             }
 
             velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing,accelerationTimeGrounded);  
-           
-            playerAnimController.SetPlayerMeshRotationBasedOnVelocity(velocity);
 
-            playerAnimController.SetPlayerMovementSpeed(velocity.x,isPushing);
+            
+            playerController.AnimationController.SetPlayerMovementSpeed(playerInput,isMovingObject,isPushing);
+
+            if(!isMovingObject)
+                playerController.AnimationController.SetPlayerMeshRotationBasedOnVelocity(velocity);
 
         }
 
-        if(controller.collisions.below)
+        if(collisions.below)
         {
             if (isFalling)
             {
                 isFalling = false;
-                playerAnimController.SetPlayerFalling(isFalling);
+                playerController.AnimationController.SetPlayerFalling(isFalling);
                 StartCoroutine(LandingCooldown());
             }
         }
@@ -162,15 +157,125 @@ public class PlayerMovementController : MonoBehaviour
         }
 
         //Check if fully grounded
-        if (controller.collisions.fullyGrounded)
+        if (collisions.fullyGrounded)
         {
             lastGroundedPoint = this.transform.position;
-            wrappingCount = 0;
         }        
 
         velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
-        screenWrapController.ScreenWrap();
+        Move(velocity * Time.deltaTime);
+        screenwrappingBehaviour.ScreenWrap();
+    }
+
+    private bool GetIfPlayerIsPushingObject(float targetVelocity)
+    {
+        if (playerController.Interactable)
+        {
+            if (playerController.Interactable.MovementController != null)
+            {
+                if (playerController.Interactable.MovementController.HasDetectedPlayer())
+                {
+                    if (playerController.InputController.IsInteracting)
+                    {
+                       return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private bool GetPositionInRelationToPushableObject(float targetVelocityX)
+    {
+        if (GetObjectOrientation() == 0 || GetObjectOrientation() == 180)
+        {
+            if (transform.position.x < playerController.Interactable.transform.position.x)
+            {
+                if (targetVelocityX > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (targetVelocityX > 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+        else if (GetObjectOrientation() == 90 || GetObjectOrientation() == 270)
+        {
+            if (transform.position.y < playerController.transform.position.y)
+            {
+                if (targetVelocityX > 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (targetVelocityX > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        Debug.LogError("No Reasonable Orientation Found");
+        return false;
+    }
+
+    private void DetectedInteractable()
+    {
+        CollisionOrientationInfo orientationInfo = new CollisionOrientationInfo();
+
+        orientationInfo.orientation = GetObjectOrientation();
+
+        orientationInfo.sideDirection = Mathf.Sign(velocity.x);
+        orientationInfo.rayLength = 2 + skinWidth;
+
+        orientationInfo.SetInfoBasedOnOrientation();
+       
+        //If we're moving left or if we're moving right
+        Vector2 rayOrigin = (lastXInput == -1) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight;
+        Vector2 rayOffset = (lastXInput == -1) ? new Vector2(-0.1f, -0.1f) : new Vector2(0.1f, 0.1f);
+        rayOrigin += (orientationInfo.rayOriginDirection + rayOffset);
+        Ray2D collisionRay = new Ray2D(rayOrigin, orientationInfo.collisionRayDirection * orientationInfo.sideDirection);
+
+        RaycastHit2D hit = Physics2D.Raycast(collisionRay.origin, collisionRay.direction, orientationInfo.rayLength);
+        Debug.DrawRay(collisionRay.origin, collisionRay.direction, Color.red);
+
+        if (hit.transform != null)
+        {
+            if (lastInteractedObject == null || lastInteractedObject != hit.transform)
+            {
+                lastInteractedObject = hit.transform;
+                playerController.SetInteractable(hit.transform.GetComponent<Interactable>());
+                moveableObjectSide = lastXInput;
+            }           
+        }
+        else
+        {
+            playerController.SetInteractable(null);
+        }    
     }
 
     public void SetPushing(bool hasInput)
@@ -181,7 +286,7 @@ public class PlayerMovementController : MonoBehaviour
     private IEnumerator FallingCooldown()
     {
         isFalling = true;
-        playerAnimController.SetPlayerFalling(isFalling);
+        playerController.AnimationController.SetPlayerFalling(isFalling);
         yield return new WaitForSeconds(1f);
         movementState = MovementState.Frozen;
     }
@@ -196,13 +301,13 @@ public class PlayerMovementController : MonoBehaviour
     {
         movementState = MovementState.Frozen;
         velocity = Vector3.zero;
-        controller.Move(velocity * Time.deltaTime);
+        Move(velocity * Time.deltaTime);
 
     }
 
     private void UnFreezePlayerMovement()
     {
-        controller.CalculateRaySpacing();
+        CalculateRaySpacing();
         movementState = MovementState.Free;
     }
 
@@ -212,37 +317,48 @@ public class PlayerMovementController : MonoBehaviour
         this.transform.rotation = newTransform.rotation;
 
         Transform mesh = newTransform.GetChild(0);
-        playerAnimController.SetPlayerMeshRotation(mesh);
+        playerController.AnimationController.SetPlayerMeshRotation(mesh);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.tag == "DynamicPlatform")
+        if(collision.tag == "DynamicObject" && collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
         {
             this.transform.SetParent(collision.transform);
-            currentPlatform = collision.GetComponent<DynamicPlatform>();
 
-            if (!currentPlatform)
+            currentPlatform = collision.GetComponent<PlatformController>();
+
+            if(!currentPlatform)
                 return;
 
-            currentPlatform.platformBehaviourTriggered += FreezePlayerMovement;
-            currentPlatform.platformBehaviourEnded += UnFreezePlayerMovement;
+            if (currentPlatform.CanRotate || currentPlatform.CanMove)
+            {
+
+            }
+
+            //currentPlatform = collision.GetComponent<DynamicPlatform>();
+
+            //if (!currentPlatform)
+            //    return;
+
+            //currentPlatform.platformBehaviourTriggered += FreezePlayerMovement;
+            //currentPlatform.platformBehaviourEnded += UnFreezePlayerMovement;
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.tag == "DynamicPlatform")
+        if (collision.tag == "DynamicObject" && collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
         {
             this.transform.SetParent(originalParent);
 
-            if (!currentPlatform)
-                return;
+            //if (!currentPlatform)
+            //    return;
 
-            currentPlatform.platformBehaviourTriggered -= FreezePlayerMovement;
-            currentPlatform.platformBehaviourEnded -= UnFreezePlayerMovement;
+            //currentPlatform.platformBehaviourTriggered -= FreezePlayerMovement;
+            //currentPlatform.platformBehaviourEnded -= UnFreezePlayerMovement;
 
-            currentPlatform = null;
+            //currentPlatform = null;
         }
     }
 }

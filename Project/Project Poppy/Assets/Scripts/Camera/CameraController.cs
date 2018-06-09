@@ -6,22 +6,19 @@ public class CameraController : MonoBehaviour
 {
     private LevelManager levelManager;
     private CameraMovementBehaviour movementBehaviour;
+    public CameraMovementBehaviour CameraMovementBehaviour { get { return movementBehaviour;} }
+    private CameraScrollingBehaviour scrollingBehaviour;
+    public CameraScrollingBehaviour ScrollingBehaviour { get { return scrollingBehaviour;} }
+
+    [Header("Player")]
+    [SerializeField]
+    private PlayerController playerController;
+    public PlayerController PlayerController { get { return playerController;} }
 
     private void Start()
     {
-        levelManager = this.transform.root.GetComponent<LevelManager>();
-        movementBehaviour = this.GetComponent<CameraMovementBehaviour>();
-        movementBehaviour.enabled = false;
+        levelManager = Manager.Instance.LevelManager;
+        movementBehaviour = GetComponent<CameraMovementBehaviour>();
+        scrollingBehaviour = GetComponent<CameraScrollingBehaviour>();
     }
-
-    public void MoveToPosition(Vector3 taregtPos, Vector3 targetRot)
-    {
-        movementBehaviour.InitMovement(taregtPos, targetRot);
-    }
-
-    public void CameraIsInNewPosition()
-    {
-        levelManager.SpawnPlayerAtNewPosition();
-    }
-
 }

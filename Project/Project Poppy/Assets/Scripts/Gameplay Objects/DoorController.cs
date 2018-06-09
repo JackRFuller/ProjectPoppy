@@ -167,7 +167,7 @@ public class DoorController : MonoBehaviour
                 if (levelManager == null)
                     levelManager = this.transform.root.GetComponent<LevelManager>();
 
-                levelManager.StartMovementToNextLevel(targetLevelID, targetDoorID - 1);
+                //levelManager.StartMovementToNextLevel(targetLevelID, targetDoorID - 1);
             }
             else
             {

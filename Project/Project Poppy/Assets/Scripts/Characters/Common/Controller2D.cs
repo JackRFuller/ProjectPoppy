@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(ScreenwrappingBehaviour))]
 public class Controller2D : RaycastController
-{ 
+{
+    protected ScreenwrappingBehaviour screenwrappingBehaviour;
     public CollisionInfo collisions;
     private Transform hitTransform;
     public Transform GetHitTransform { get { return hitTransform; } }
@@ -14,21 +16,34 @@ public class Controller2D : RaycastController
     {
         base.Start();
 
+        screenwrappingBehaviour = GetComponent<ScreenwrappingBehaviour>();
         colliderXOriginal = objCollider.size.x;
     }
 
-    public void UpdateCollider(bool increasingSize,float XToAdd)
+    protected void UpdateColliderSizeAndPosition(float sizeToAdd, float movementDirection)
     {
-        if(increasingSize)
+        Vector2 newOffset = Vector2.zero;
+        Vector2 newSize = new Vector2(objCollider.size.x + sizeToAdd,objCollider.size.y);
+        
+        newOffset.x = newSize.x - (sizeToAdd - 0.1f);
+
+        if(movementDirection == -1)
         {
-            objCollider.size = new Vector2(objCollider.size.x + XToAdd, 1);
+            newOffset = -newOffset;
         }
         else
         {
-            objCollider.size =  new Vector2(colliderXOriginal,1);
+            //newOffset.x = newSize.x + sizeToAdd;
         }
 
-        CalculateRaySpacing();
+        objCollider.size = newSize;
+        objCollider.offset = newOffset;      
+    }
+
+    protected void ResetColliderSizeAndPosition()
+    {
+        objCollider.size = new Vector2(colliderXOriginal,objCollider.size.y);
+        objCollider.offset = Vector2.zero;
     }
 
     public void Move(Vector3 velocity)
@@ -94,31 +109,24 @@ public class Controller2D : RaycastController
             RaycastHit2D hit = Physics2D.Raycast(collisionRay.origin, collisionRay.direction, rayLength, collisionMask);                               
             Debug.DrawRay(collisionRay.origin, collisionRay.direction, Color.red);
 
-            if (hit)
+            if (hit.transform != null)
             {
-                collisions.below = gravityDirection == -1;
-                collisions.above = gravityDirection == 1;
-
-                groundedCount++;
-                velocity.y = (hit.distance - skinWidth) * gravityDirection;
-
-                if(i == verticalRayCount)
+                if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Platform"))
                 {
-                    rayLength = hit.distance;
-                }
-            } 
+                    collisions.below = gravityDirection == -1;
+                    collisions.above = gravityDirection == 1;
 
+                    groundedCount++;
+                    velocity.y = (hit.distance - skinWidth) * gravityDirection;
+
+                    if (i == verticalRayCount)
+                    {
+                        rayLength = hit.distance;
+                    }
+                }
+            }
         }
-        
-        if (groundedCount == verticalRayCount)
-        {
-            collisions.fullyGrounded = true;
-        }
-        else
-        {
-            collisions.fullyGrounded = false;
-        }
-        
+        collisions.fullyGrounded = groundedCount == verticalRayCount;
     }
 
     /// <summary>
@@ -126,77 +134,40 @@ public class Controller2D : RaycastController
     /// </summary>
     private void SideOfObjectCollisions(ref Vector3 velocity)
     {
-        float orientation = GetObjectOrientation();
-        float sideDirection = 0;
-        float rayLength = 0;
+        CollisionOrientationInfo orientationInfo = new CollisionOrientationInfo();
 
-        sideDirection = Mathf.Sign(velocity.x);
-        rayLength = Mathf.Abs(velocity.x) + skinWidth;
+        orientationInfo.orientation = GetObjectOrientation();
 
-        Vector2 rayOriginDirection = Vector2.zero;
-        Vector2 collisionRayDirection = Vector2.zero;
+        orientationInfo.sideDirection = Mathf.Sign(velocity.x);
+        orientationInfo.rayLength = Mathf.Abs(velocity.x) + skinWidth;
 
-        if (orientation == 0)
-        {
-            rayOriginDirection = Vector2.up;
-            collisionRayDirection = Vector2.right;
-        }
-        else if (orientation == 90)
-        {
-            rayOriginDirection = Vector2.left;
-            collisionRayDirection = Vector2.up;
-        }
-        else if (orientation == 180)
-        {
-            rayOriginDirection = Vector2.down;
-            collisionRayDirection = Vector2.left;
-        }
-        else if (orientation == 270)
-        {
-            rayOriginDirection = Vector2.right;
-            collisionRayDirection = Vector2.down;
-        }
+        orientationInfo.SetInfoBasedOnOrientation();
 
         int collisionCount = 0;
 
         for (int i = 0; i < horizontalRayCount; i++)
         {
             //If we're moving left or if we're moving right
-            Vector2 rayOrigin = (sideDirection == -1) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight;
-            rayOrigin += rayOriginDirection * (horizontalRaySpacing * i);
-            Ray2D collisionRay = new Ray2D(rayOrigin, collisionRayDirection * sideDirection);
+            Vector2 rayOrigin = (orientationInfo.sideDirection == -1) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight;
+            rayOrigin += orientationInfo.rayOriginDirection * (horizontalRaySpacing * i);
+            Ray2D collisionRay = new Ray2D(rayOrigin, orientationInfo.collisionRayDirection * orientationInfo.sideDirection);
 
-            RaycastHit2D hit = Physics2D.Raycast(collisionRay.origin, collisionRay.direction, rayLength, collisionMask);
-            Debug.DrawRay(collisionRay.origin, collisionRay.direction, Color.red);
+            RaycastHit2D hit = Physics2D.Raycast(collisionRay.origin, collisionRay.direction, orientationInfo.rayLength, collisionMask);
+            //Debug.DrawRay(collisionRay.origin, collisionRay.direction, Color.red);
 
-            if (hit)
+            if (hit.transform != null)
             {
-                collisionCount++;
-
-                hitTransform = hit.transform;
-
-                if (collisionCount == horizontalRayCount)
+                if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Platform"))
                 {
-                    
-                }    
-                
-                
-                velocity.x = (hit.distance - skinWidth) * sideDirection;
-                rayLength = hit.distance;
+                    velocity.x = (hit.distance - skinWidth) * orientationInfo.sideDirection;
+                    orientationInfo.rayLength = hit.distance;
 
-                collisions.left = sideDirection == -1;
-                collisions.right = sideDirection == 1;
-                
-               
-            }             
-        }
-
-        if(collisionCount < horizontalRayCount)
-        {
-            //hitTransform = null;
+                    collisions.left = orientationInfo.sideDirection == -1;
+                    collisions.right = orientationInfo.sideDirection == 1;
+                }
+            }
         }
     }
-
 
     public struct CollisionInfo
     {
@@ -209,5 +180,39 @@ public class Controller2D : RaycastController
             above = below = false;
             left = right = false;
         }
+    }
+
+    public struct CollisionOrientationInfo
+    {
+        public float orientation;
+        public float sideDirection;
+        public float rayLength;
+        public Vector2 rayOriginDirection;
+        public Vector2 collisionRayDirection;
+
+        public void SetInfoBasedOnOrientation()
+        {
+            if (orientation == 0)
+            {
+                rayOriginDirection = Vector2.up;
+                collisionRayDirection = Vector2.right;
+            }
+            else if (orientation == 90)
+            {
+                rayOriginDirection = Vector2.left;
+                collisionRayDirection = Vector2.up;
+            }
+            else if (orientation == 180)
+            {
+                rayOriginDirection = Vector2.down;
+                collisionRayDirection = Vector2.left;
+            }
+            else if (orientation == 270)
+            {
+                rayOriginDirection = Vector2.right;
+                collisionRayDirection = Vector2.down;
+            }
+        }
+
     }
 }

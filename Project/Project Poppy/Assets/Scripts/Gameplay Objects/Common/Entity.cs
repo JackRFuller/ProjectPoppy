@@ -28,5 +28,15 @@ public class Entity : MonoBehaviour
     {
         transform.localScale = scale;
     }
+
+    protected void TurnOffComponent()
+    {
+        this.enabled = false;
+    }
+
+    protected void TurnOnComponent()
+    {
+        this.enabled = true;
+    }
 	
 }

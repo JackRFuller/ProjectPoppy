@@ -9,11 +9,16 @@ public class PlayerInputController : MonoBehaviour
     private PlayerBellInventoryController bellInventory;
 
     private Interactable currentInteractable;
+    private bool isInteracting;
+    public bool IsInteracting { get { return isInteracting;} }
 
     private void Start()
     {
         bellInventory = GetComponent<PlayerBellInventoryController>();
         playerMovement = GetComponent<PlayerMovementController>();
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     private void Update()
@@ -35,21 +40,18 @@ public class PlayerInputController : MonoBehaviour
     
     private void InteractInput()
     {
-        if(Input.GetKeyDown(KeyCode.E))
+        if(Input.GetMouseButton(0))
         {
-            currentInteractable.OnPlayerInteract();
-        }
-    }
+            isInteracting = true;
 
-    private void PushInput()
-    {
-        if(Input.GetKey(KeyCode.E))
-        {
-            playerMovement.SetPushing(true);
+            if (currentInteractable != null)
+            {
+                currentInteractable.OnPlayerInteract();
+            }
         }
         else
         {
-            playerMovement.SetPushing(false);
+            isInteracting = false;
         }
     }
 
@@ -57,12 +59,10 @@ public class PlayerInputController : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Alpha1))
         {
-            Debug.Log(("Ringing Life Bell"));
             bellInventory.RingBell(0);
         }
         else if (Input.GetKeyUp(KeyCode.Alpha1))
         {
-            Debug.Log(("Stopped Life Bell"));
             bellInventory.StopRingingBell();
         }
 
@@ -71,5 +71,6 @@ public class PlayerInputController : MonoBehaviour
     public void SetCurrentInteractable(Interactable interactable)
     {
         currentInteractable = interactable;
+        Debug.Log("Set");
     }
 }

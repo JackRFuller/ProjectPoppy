@@ -11,7 +11,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cee90953068d74348b5118f578be8728, type: 3}
   m_Name: Level 1
   m_EditorClassIdentifier: 
-  levelGeometry: {fileID: 1237979387996552, guid: 5b8f922d8dcaaf74a97be28543deb27c,
+  levelGeometry: {fileID: 1522581006679262, guid: 80ca6beb2a45109419c1c50558731478,
     type: 2}
-  levelSpawnPoint: {x: 0, y: 0, z: 0}
-  levelRotation: {x: 0, y: 0, z: 0}
+  levelIndex: {x: 1, y: 0}
+  levelSpawnPoint: {x: 35.5, y: 0}
+  levelRotation: {x: 0, y: 0}

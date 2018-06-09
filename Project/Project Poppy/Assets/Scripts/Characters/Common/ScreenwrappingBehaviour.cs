@@ -5,6 +5,7 @@ using UnityEngine;
 public class ScreenwrappingBehaviour : MonoBehaviour
 {
     private Camera mainCamera;
+    private Controller2D controller;
 
     //Screen Wrapping
     private bool isWrappingX = false;
@@ -13,9 +14,10 @@ public class ScreenwrappingBehaviour : MonoBehaviour
 
     private void Start()
     {
+        controller = GetComponent<Controller2D>();
         mainCamera = Camera.main;
-    }   
-
+    }
+    
     public void ScreenWrap()
     {
         if (isVisible())
@@ -24,6 +26,9 @@ public class ScreenwrappingBehaviour : MonoBehaviour
             isWrappingY = false;
             return;
         }
+
+        if(controller.collisions.fullyGrounded)
+            return;
 
         if (isWrappingY && isWrappingX)
             return;
@@ -53,4 +58,6 @@ public class ScreenwrappingBehaviour : MonoBehaviour
         bool _isVisible = screenPoint.z > 0 && screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1;
         return _isVisible;
     }
+
+
 }

@@ -9,6 +9,8 @@ using UnityEditor;
 public class LevelData : ScriptableObject
 {    
     public GameObject levelGeometry;
-    public Vector3 levelSpawnPoint;
-    public Vector3 levelRotation; //Determines what rotation the camera should be at
+    public Vector2 levelIndex; //Defines the grid position of the level
+    [Space]
+    public Vector2 levelSpawnPoint;
+    public Vector2 levelRotation; //Determines what rotation the camera should be at
 }
