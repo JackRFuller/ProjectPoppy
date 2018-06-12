@@ -6,8 +6,6 @@ public class LevelManager : MonoBehaviour
 {
     [SerializeField]
     private LevelData[] levels;
-    private LevelHandler currentLevel;
-
     private Dictionary<Vector2, LevelData> loadedLevels;
 
     private Vector2 currentLevelIndex = Vector2.zero;

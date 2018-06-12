@@ -17,8 +17,10 @@ public class PlatformController : Controller
     private RotatingPlatformBehaviour rotatingPlatformBehaviour;
     private MovingPlatformBehaviour movingPlatformBehaviour;
 
-    private UnityAction platformBehaviourTriggered;
-    private UnityAction platformBehaviourEnded;
+    private int m_numberOfActionsInitiated = 0;
+
+    public UnityAction platformBehaviourTriggered;
+    public UnityAction platformBehaviourEnded;
 
     private void Start()
     {
@@ -31,7 +33,6 @@ public class PlatformController : Controller
         if (canRotate)
             rotatingPlatformBehaviour = GetComponent<RotatingPlatformBehaviour>();
     }
-
     protected override void HitByLifeBell()
     {
         Debug.Log(gameObject.name + " Hit By Life Bell");
@@ -39,11 +40,31 @@ public class PlatformController : Controller
         if (canActivate)
             activatingPlatformBehaviour.ActivateBehaviour();
        
-        if(canRotate)
-            rotatingPlatformBehaviour.ActivateBehaviour();
+        if(canRotate || canMove)
+        {         
+            if(platformBehaviourTriggered != null)
+                platformBehaviourTriggered();
 
-        if(canMove)
-            movingPlatformBehaviour.ActivateBehaviour();
+            if(canRotate)
+            {
+                m_numberOfActionsInitiated++;          
+                rotatingPlatformBehaviour.ActivateBehaviour();
+            }
+             if(canMove)
+            {
+                m_numberOfActionsInitiated++;    
+                movingPlatformBehaviour.ActivateBehaviour();
+            }
+        } 
+    }  
+
+    public void BehaviourEnded()
+    {
+        if(m_numberOfActionsInitiated > 0)
+            m_numberOfActionsInitiated--;
+
+        if(platformBehaviourEnded != null)
+            platformBehaviourEnded();
     }
 
     #region EditorBehaviours

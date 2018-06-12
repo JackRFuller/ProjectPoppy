@@ -6,9 +6,10 @@ public class LifeBellSoundwave : Soundwave
 {
     protected override void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.tag == "DynamicObject")
+        if (other.tag == "DynamicPlatform")
         {
-            other.SendMessage("HitByLifeBell",SendMessageOptions.DontRequireReceiver);
+            if(!other.isTrigger)
+                other.SendMessage("HitByLifeBell",SendMessageOptions.DontRequireReceiver);
         }
     }
 }

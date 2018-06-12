@@ -19,11 +19,7 @@ public class PlayerMovementController : Controller2D
     private Transform originalParent;
 
     private MovementState movementState;
-    private enum MovementState
-    {
-        Free,
-        Frozen,
-    }
+    private enum MovementState {Free, Frozen, Falling,}    
 
     private Vector2 lastGroundedPoint;
     private Camera mainCamera;
@@ -57,19 +53,22 @@ public class PlayerMovementController : Controller2D
     }
 
     private void Update()
-    {
-        if(movementState == MovementState.Free)
+    {    
+        if(movementState == MovementState.Frozen)
+            return;
+        
+        if(collisions.above || collisions.below)
         {
-            if(collisions.above || collisions.below)
-            {
-                velocity.y = 0;
-            }
+            velocity.y = 0;
+        }
 
-            float xInput = directionInput.x;
-            float yInput = directionInput.y;
+        float xInput = directionInput.x;
+        float yInput = directionInput.y;
 
-            float targetVelocityX = 0;
+        float targetVelocityX = 0;
 
+        if(movementState != MovementState.Falling)
+        {
             if(collisions.below)
             {
                 if (GetObjectOrientation() == 0)
@@ -89,55 +88,53 @@ public class PlayerMovementController : Controller2D
                     targetVelocityX = -yInput;
                 }
             }
-
-            //Used for animation control
-            float playerInput = Mathf.Abs(targetVelocityX);
-
-            if(targetVelocityX != 0)
-                lastXInput = targetVelocityX;
-
-            targetVelocityX *= playerMovementSpeed;            
-
-            bool isPushing = false;
-
-            if (GetIfPlayerIsPushingObject(targetVelocityX))
-            {
-                if (Mathf.Abs(targetVelocityX) > 0)
-                {
-                    if(!hasUpdatedColliderSizeAndPosition)
-                    {
-                       float newSize = playerController.Interactable.MovementController.ObjCollider.size.x;
-                       UpdateColliderSizeAndPosition(newSize,moveableObjectSide);  
-                       hasUpdatedColliderSizeAndPosition = true;
-                    }
-                     
-                    isPushing = GetPositionInRelationToPushableObject(targetVelocityX);
-                    isMovingObject = true;
-                    targetVelocityX *= 0.5f;
-                    playerController.Interactable.MovementController.SetDirectionInput(targetVelocityX);
-                }
-                
-            }
-            else
-            {
-                if(hasUpdatedColliderSizeAndPosition)
-                {
-                    ResetColliderSizeAndPosition();
-                    hasUpdatedColliderSizeAndPosition = false;
-                }
-                isMovingObject = false;
-                DetectedInteractable();
-            }
-
-            velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing,accelerationTimeGrounded);  
-
-            
-            playerController.AnimationController.SetPlayerMovementSpeed(playerInput,isMovingObject,isPushing);
-
-            if(!isMovingObject)
-                playerController.AnimationController.SetPlayerMeshRotationBasedOnVelocity(velocity);
-
         }
+        //Used for animation control
+        float playerInput = Mathf.Abs(targetVelocityX);
+
+        if(targetVelocityX != 0)
+            lastXInput = targetVelocityX;
+
+        targetVelocityX *= playerMovementSpeed;            
+
+        bool isPushing = false;
+
+        if (GetIfPlayerIsPushingObject(targetVelocityX))
+        {
+            if (Mathf.Abs(targetVelocityX) > 0)
+            {
+                if(!hasUpdatedColliderSizeAndPosition)
+                {
+                    float newSize = playerController.Interactable.MovementController.ObjCollider.size.x;
+                    UpdateColliderSizeAndPosition(newSize,moveableObjectSide);  
+                    hasUpdatedColliderSizeAndPosition = true;
+                }
+                    
+                isPushing = GetPositionInRelationToPushableObject(targetVelocityX);
+                isMovingObject = true;
+                targetVelocityX *= 0.5f;
+                playerController.Interactable.MovementController.SetDirectionInput(targetVelocityX);
+            }
+            
+        }
+        else
+        {
+            if(hasUpdatedColliderSizeAndPosition)
+            {
+                ResetColliderSizeAndPosition();
+                hasUpdatedColliderSizeAndPosition = false;
+            }
+            isMovingObject = false;
+            DetectedInteractable();
+        }
+
+        velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing,accelerationTimeGrounded);  
+
+        
+        playerController.AnimationController.SetPlayerMovementSpeed(playerInput,isMovingObject,isPushing);
+
+        if(!isMovingObject)
+            playerController.AnimationController.SetPlayerMeshRotationBasedOnVelocity(velocity);
 
         if(collisions.below)
         {
@@ -160,13 +157,13 @@ public class PlayerMovementController : Controller2D
         if (collisions.fullyGrounded)
         {
             lastGroundedPoint = this.transform.position;
-        }        
+        } 
 
         velocity.y += gravity * Time.deltaTime;
         Move(velocity * Time.deltaTime);
-        screenwrappingBehaviour.ScreenWrap();
+        screenwrappingBehaviour.ScreenWrap();        
     }
-
+    
     private bool GetIfPlayerIsPushingObject(float targetVelocity)
     {
         if (playerController.Interactable)
@@ -278,17 +275,12 @@ public class PlayerMovementController : Controller2D
         }    
     }
 
-    public void SetPushing(bool hasInput)
-    {
-        hasPushingInput = hasInput;
-    }   
-
     private IEnumerator FallingCooldown()
     {
         isFalling = true;
         playerController.AnimationController.SetPlayerFalling(isFalling);
         yield return new WaitForSeconds(1f);
-        movementState = MovementState.Frozen;
+        movementState = MovementState.Falling;       
     }
 
     private IEnumerator LandingCooldown()
@@ -301,64 +293,40 @@ public class PlayerMovementController : Controller2D
     {
         movementState = MovementState.Frozen;
         velocity = Vector3.zero;
-        Move(velocity * Time.deltaTime);
-
+        Move(velocity * Time.deltaTime);        
+        Debug.Log("Frozen");
     }
 
     private void UnFreezePlayerMovement()
     {
         CalculateRaySpacing();
-        movementState = MovementState.Free;
+        UpdateRaycastOrigins();
+        StartCoroutine(WaitToUnfreezePlayer());
     }
 
-    public void SetPlayerPosition(Transform newTransform)
+    IEnumerator WaitToUnfreezePlayer()
     {
-        this.transform.position = newTransform.position;
-        this.transform.rotation = newTransform.rotation;
-
-        Transform mesh = newTransform.GetChild(0);
-        playerController.AnimationController.SetPlayerMeshRotation(mesh);
+        yield return new WaitForSeconds(0.1f);
+        collisions.below = true;
+        movementState = MovementState.Free;
+        Debug.Log("UnFrozen");
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.tag == "DynamicObject" && collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
+        if(collision.tag == "DynamicPlatform" )
         {
-            this.transform.SetParent(collision.transform);
+            SetParent(collision.transform);
 
             currentPlatform = collision.GetComponent<PlatformController>();
-
-            if(!currentPlatform)
-                return;
-
-            if (currentPlatform.CanRotate || currentPlatform.CanMove)
-            {
-
-            }
-
-            //currentPlatform = collision.GetComponent<DynamicPlatform>();
-
-            //if (!currentPlatform)
-            //    return;
-
-            //currentPlatform.platformBehaviourTriggered += FreezePlayerMovement;
-            //currentPlatform.platformBehaviourEnded += UnFreezePlayerMovement;
+            
+            currentPlatform.platformBehaviourTriggered += FreezePlayerMovement;
+            currentPlatform.platformBehaviourEnded += UnFreezePlayerMovement;
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.tag == "DynamicObject" && collision.gameObject.layer == LayerMask.NameToLayer("Platform"))
-        {
-            this.transform.SetParent(originalParent);
-
-            //if (!currentPlatform)
-            //    return;
-
-            //currentPlatform.platformBehaviourTriggered -= FreezePlayerMovement;
-            //currentPlatform.platformBehaviourEnded -= UnFreezePlayerMovement;
-
-            //currentPlatform = null;
-        }
+       
     }
 }

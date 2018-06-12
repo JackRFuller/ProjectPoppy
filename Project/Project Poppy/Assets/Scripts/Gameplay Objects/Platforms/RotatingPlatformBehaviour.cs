@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RotatingPlatformBehaviour : Behaviour
+public class RotatingPlatformBehaviour : PlatformBehaviour
 {
     public Vector3Lerping lerpingAttributes;
 
     public override void ActivateBehaviour()
     {
+        
         if(lerpingAttributes.isLerping)
             return;
         
@@ -37,6 +38,7 @@ public class RotatingPlatformBehaviour : Behaviour
         if (percentageComplete >= 1.0f)
         {
             lerpingAttributes.isLerping = false;
+            m_platformController.BehaviourEnded();
         }
 
     }

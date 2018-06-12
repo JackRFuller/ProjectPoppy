@@ -6,7 +6,7 @@ using UnityEngine;
 public class PressurePlateController : MonoBehaviour
 {
     [SerializeField]
-    private DoorController[] linkedDoors;
+    private TeleportController[] linkedDoors;
 
     private AudioSource plateAudio;
     private Animator plateAnimator;
@@ -20,7 +20,7 @@ public class PressurePlateController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.tag == "Character" || collision.tag == "MoveableObject")
+        if(collision.tag == "MoveableObject")
         {
             isActive = true;
             plateAnimator.SetBool("Activated", isActive);
@@ -28,14 +28,14 @@ public class PressurePlateController : MonoBehaviour
 
             for (int i = 0; i < linkedDoors.Length; i++)
             {
-                linkedDoors[i].AddKey();
+                linkedDoors[i].KeyActivated();
             }
         }       
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if(collision.tag == "Character" || collision.tag == "MoveableObject")
+        if(collision.tag == "MoveableObject")
         {
             isActive = false;
             plateAnimator.SetBool("Activated", isActive);
@@ -43,7 +43,7 @@ public class PressurePlateController : MonoBehaviour
 
             for (int i = 0; i < linkedDoors.Length; i++)
             {
-                linkedDoors[i].RemoveKey();
+                linkedDoors[i].KeyDeactivated();
             }
         }
         

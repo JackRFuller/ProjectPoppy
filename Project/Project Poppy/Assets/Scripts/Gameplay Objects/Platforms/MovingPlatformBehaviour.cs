@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MovingPlatformBehaviour : Behaviour
+public class MovingPlatformBehaviour : PlatformBehaviour
 {
     [SerializeField]
     private GameObject platformPathPrefab;
@@ -58,6 +58,8 @@ public class MovingPlatformBehaviour : Behaviour
 
             pathAttributes.isLerping = false;
             this.enabled = false;
+
+            m_platformController.BehaviourEnded();
         }
     }
 

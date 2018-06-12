@@ -169,6 +169,14 @@ public class Controller2D : RaycastController
         }
     }
 
+    public void TeleportPlayer(Vector3 targetPosition, Vector3 targetRotation)
+    {
+        SetPosition(targetPosition);
+        SetRotation(targetRotation);
+
+        CalculateRaySpacing();
+    }
+
     public struct CollisionInfo
     {
         public bool above, below;

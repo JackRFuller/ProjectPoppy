@@ -11,5 +11,6 @@ public class CameraBehaviour : Entity
     {
         camera = GetComponent<Camera>();
         cameraController = GetComponent<CameraController>();
+               
     }
 }

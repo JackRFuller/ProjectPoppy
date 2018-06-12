@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider2D))]
-public class ActivatingPlatformBehaviour : Behaviour
+public class ActivatingPlatformBehaviour : PlatformBehaviour
 {
     private MeshRenderer platformRenderer;
     private BoxCollider2D platformCollider;
@@ -18,6 +18,8 @@ public class ActivatingPlatformBehaviour : Behaviour
 
     [SerializeField] private Material platformActiveMaterial;
     [SerializeField] private Material platformDisabledMaterial;
+
+	public Vector3Lerping lerping;
 
     private void Start()
     {

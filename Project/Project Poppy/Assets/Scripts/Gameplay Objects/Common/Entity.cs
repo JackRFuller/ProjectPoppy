@@ -14,6 +14,11 @@ public class Entity : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    protected void SetParent(Transform newParent)
+    {
+        transform.SetParent(newParent);
+    }
+
     protected void SetPosition(Vector3 position)
     {
         transform.position = position;
