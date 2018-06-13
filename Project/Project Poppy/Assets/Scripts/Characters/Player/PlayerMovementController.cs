@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerMovementController : Controller2D
 {
     private PlayerController playerController;
-    private float playerMovementSpeed = 1.5f;
+    private float playerMovementSpeed = 3f;
     private float gravity = -6f;
     private Vector3 velocity;
 

@@ -30,7 +30,7 @@ public class LevelManager : MonoBehaviour
 
         if (loadedLevels.ContainsKey(currentLevelIndex))
             return;
-        Debug.Log(newLevelIndex);
+        
         LevelData newLevel = null;
 
         for (int i = 0; i < levels.Length; i++)

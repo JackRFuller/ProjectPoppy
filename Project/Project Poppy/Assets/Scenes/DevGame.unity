@@ -184,7 +184,7 @@ GameObject:
   - component: {fileID: 118704705}
   - component: {fileID: 118704707}
   - component: {fileID: 118704706}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: ScreenBorder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -361,7 +361,7 @@ GameObject:
   - component: {fileID: 214239844}
   - component: {fileID: 214239843}
   - component: {fileID: 214239842}
-  m_Layer: 5
+  m_Layer: 14
   m_Name: MainCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -529,7 +529,7 @@ GameObject:
   - component: {fileID: 286606574}
   - component: {fileID: 286606576}
   - component: {fileID: 286606575}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: ScreenBorder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -596,7 +596,7 @@ GameObject:
   - component: {fileID: 290857279}
   - component: {fileID: 290857281}
   - component: {fileID: 290857280}
-  m_Layer: 5
+  m_Layer: 14
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -872,7 +872,7 @@ GameObject:
   - component: {fileID: 381416357}
   - component: {fileID: 381416359}
   - component: {fileID: 381416358}
-  m_Layer: 5
+  m_Layer: 14
   m_Name: ScreenScrollingDirectionLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -941,11 +941,12 @@ GameObject:
   - component: {fileID: 410198700}
   - component: {fileID: 410198699}
   - component: {fileID: 410198698}
-  - component: {fileID: 410198701}
   - component: {fileID: 410198702}
   - component: {fileID: 410198703}
   - component: {fileID: 410198704}
-  m_Layer: 0
+  - component: {fileID: 410198705}
+  - component: {fileID: 410198701}
+  m_Layer: 14
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -991,7 +992,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.066176474, g: 0.066176474, b: 0.066176474, a: 0}
+  m_BackGroundColor: {r: 0.028301895, g: 0.028301895, b: 0.028301895, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -1026,10 +1027,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 410198696}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff26db721962cdf4a8edcdfa9a767d2a, type: 3}
+  m_Script: {fileID: 11500000, guid: 8b9a305e18de0c04dbd257a21cd47087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  profile: {fileID: 11400000, guid: 0b0db3d3c8a4673459eaf7c61e387726, type: 2}
+  sharedProfile: {fileID: 11400000, guid: 471d4eb012382a14cb1acca325841a67, type: 2}
+  isGlobal: 1
+  blendDistance: 0
+  weight: 1
+  priority: 0
 --- !u!114 &410198702
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1101,6 +1106,63 @@ MonoBehaviour:
   - {fileID: 381416357}
   - {fileID: 1170632760}
   - {fileID: 1027513507}
+--- !u!114 &410198705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 410198696}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 948f4100a11a5c24981795d21301da5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volumeTrigger: {fileID: 410198697}
+  volumeLayer:
+    serializedVersion: 2
+    m_Bits: 16384
+  stopNaNPropagation: 1
+  antialiasingMode: 0
+  temporalAntialiasing:
+    jitterSpread: 0.75
+    sharpness: 0.25
+    stationaryBlending: 0.95
+    motionBlending: 0.85
+  subpixelMorphologicalAntialiasing:
+    quality: 2
+  fastApproximateAntialiasing:
+    fastMode: 0
+    keepAlpha: 0
+  fog:
+    enabled: 1
+    excludeSkybox: 1
+  debugLayer:
+    lightMeter:
+      width: 512
+      height: 256
+      showCurves: 1
+    histogram:
+      width: 512
+      height: 256
+      channel: 3
+    waveform:
+      exposure: 0.12
+      height: 256
+    vectorscope:
+      size: 256
+      exposure: 0.12
+    overlaySettings:
+      motionColorIntensity: 4
+      motionGridSize: 64
+      colorBlindnessType: 0
+      colorBlindnessStrength: 1
+  m_Resources: {fileID: 11400000, guid: d82512f9c8e5d4a4d938b575d47f88d4, type: 2}
+  m_ShowToolkit: 1
+  m_ShowCustomSorter: 0
+  breakBeforeColorGrading: 0
+  m_BeforeTransparentBundles: []
+  m_BeforeStackBundles: []
+  m_AfterStackBundles: []
 --- !u!1 &426900280
 GameObject:
   m_ObjectHideFlags: 0
@@ -1582,7 +1644,7 @@ GameObject:
   - component: {fileID: 708057190}
   - component: {fileID: 708057192}
   - component: {fileID: 708057191}
-  m_Layer: 5
+  m_Layer: 14
   m_Name: Dialogue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2431,7 +2493,7 @@ GameObject:
   - component: {fileID: 899573414}
   - component: {fileID: 899573416}
   - component: {fileID: 899573415}
-  m_Layer: 5
+  m_Layer: 14
   m_Name: ScreenScrollingDirection_Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2806,7 +2868,7 @@ GameObject:
   - component: {fileID: 1027513507}
   - component: {fileID: 1027513509}
   - component: {fileID: 1027513508}
-  m_Layer: 5
+  m_Layer: 14
   m_Name: ScreenScrollingDirectionBottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3065,7 +3127,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 1165307071}
-  m_Layer: 5
+  m_Layer: 14
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3135,7 +3197,7 @@ GameObject:
   - component: {fileID: 1170632760}
   - component: {fileID: 1170632762}
   - component: {fileID: 1170632761}
-  m_Layer: 5
+  m_Layer: 14
   m_Name: ScreenScrollingDirectionTop
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4038,7 +4100,7 @@ GameObject:
   - component: {fileID: 1471923968}
   - component: {fileID: 1471923970}
   - component: {fileID: 1471923969}
-  m_Layer: 5
+  m_Layer: 14
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4286,7 +4348,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4857207458931736, guid: e5a6797ac22246e499a2c8eb43d9fd65, type: 2}
       propertyPath: m_RootOrder
-      value: 6
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1051312743264634, guid: e5a6797ac22246e499a2c8eb43d9fd65, type: 2}
       propertyPath: m_IsActive
@@ -4336,7 +4398,7 @@ GameObject:
   - component: {fileID: 1592938308}
   - component: {fileID: 1592938310}
   - component: {fileID: 1592938309}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: ScreenBorder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4403,7 +4465,7 @@ GameObject:
   - component: {fileID: 1593430957}
   - component: {fileID: 1593430959}
   - component: {fileID: 1593430958}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: ScreenBorder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4468,7 +4530,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 1623839008}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Borders
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4683,7 +4745,7 @@ GameObject:
   - component: {fileID: 1678290672}
   - component: {fileID: 1678290674}
   - component: {fileID: 1678290673}
-  m_Layer: 5
+  m_Layer: 14
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5096,13 +5158,13 @@ GameObject:
   - component: {fileID: 1876064607}
   - component: {fileID: 1876064609}
   - component: {fileID: 1876064608}
-  m_Layer: 9
+  m_Layer: 14
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1876064607
 Transform:
   m_ObjectHideFlags: 0
@@ -5124,7 +5186,7 @@ MeshRenderer:
   m_GameObject: {fileID: 1876064606}
   m_Enabled: 1
   m_CastShadows: 1
-  m_ReceiveShadows: 1
+  m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -5468,7 +5530,7 @@ GameObject:
   - component: {fileID: 1966926859}
   - component: {fileID: 1966926861}
   - component: {fileID: 1966926860}
-  m_Layer: 5
+  m_Layer: 14
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}

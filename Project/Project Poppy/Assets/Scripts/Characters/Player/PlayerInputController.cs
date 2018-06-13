@@ -40,7 +40,7 @@ public class PlayerInputController : MonoBehaviour
     
     private void InteractInput()
     {
-        if(Input.GetMouseButton(0))
+        if(Input.GetKey(KeyCode.Space))
         {
             isInteracting = true;
 
@@ -57,11 +57,11 @@ public class PlayerInputController : MonoBehaviour
 
     private void BellInput()
     {
-        if (Input.GetKey(KeyCode.Alpha1))
+        if (Input.GetKey(KeyCode.E))
         {
             bellInventory.RingBell(0);
         }
-        else if (Input.GetKeyUp(KeyCode.Alpha1))
+        else if (Input.GetKeyUp(KeyCode.E))
         {
             bellInventory.StopRingingBell();
         }
