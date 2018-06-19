@@ -43,5 +43,10 @@ public class Entity : MonoBehaviour
     {
         this.enabled = true;
     }
+
+    protected bool IsObjectActive()
+    {
+        return this.gameObject.activeInHierarchy;
+    }
 	
 }

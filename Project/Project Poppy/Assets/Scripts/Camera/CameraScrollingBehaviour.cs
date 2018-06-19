@@ -8,6 +8,7 @@ public class CameraScrollingBehaviour : CameraBehaviour {
     [SerializeField]
 	private Transform playerTransform;
     private bool isScrolling;
+    public bool IsScrolling {get {return isScrolling;}}
 
     [Header("UI Elements")] [SerializeField]
     private RectTransform[] directionIndicatorTransforms;
@@ -67,12 +68,9 @@ public class CameraScrollingBehaviour : CameraBehaviour {
         }
 
         cameraController.CameraMovementBehaviour.InitCameraScrolling(playerDirection);
-        Manager.Instance.LevelManager.SpawnInNextLevel(playerDirection);
-        
+        Manager.Instance.LevelManager.SpawnInNextLevel(playerDirection);        
 
-        isScrolling = true;
-
-       
+        isScrolling = true;       
     }
 
     private void RestartCameraScrollingBehaviour()

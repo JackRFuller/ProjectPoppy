@@ -11,6 +11,8 @@ TagManager:
   - DynamicObject
   - Interactable
   - MoveableObject
+  - ScreenBorder
+  - PowerNode
   layers:
   - Default
   - TransparentFX

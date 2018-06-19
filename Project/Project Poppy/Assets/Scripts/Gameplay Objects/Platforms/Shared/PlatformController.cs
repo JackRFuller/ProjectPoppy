@@ -33,7 +33,7 @@ public class PlatformController : Controller
         if (canRotate)
             rotatingPlatformBehaviour = GetComponent<RotatingPlatformBehaviour>();
     }
-    protected override void HitByLifeBell()
+    public void ActivateBehaviour()
     {
         Debug.Log(gameObject.name + " Hit By Life Bell");
 

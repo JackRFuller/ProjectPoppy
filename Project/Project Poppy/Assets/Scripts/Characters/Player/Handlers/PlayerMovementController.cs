@@ -31,6 +31,7 @@ public class PlayerMovementController : Controller2D
 
     private Transform lastInteractedObject;
     private float lastXInput;
+    public float LastDirectionInput {get {return lastXInput;}}
     private bool isSuccessfullyInteracting;
     private bool isMovingObject;
     private bool hasUpdatedColliderSizeAndPosition;
@@ -54,7 +55,12 @@ public class PlayerMovementController : Controller2D
 
     private void Update()
     {    
-        if(movementState == MovementState.Frozen)
+         Move();
+    }
+
+    private void Move()
+    {
+         if(movementState == MovementState.Frozen)
             return;
         
         if(collisions.above || collisions.below)
@@ -128,13 +134,21 @@ public class PlayerMovementController : Controller2D
             DetectedInteractable();
         }
 
-        velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing,accelerationTimeGrounded);  
+        velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing,accelerationTimeGrounded); 
 
+        if(playerController.InputController.IsFiringLightGun)
+        {
+            velocity.x = 0;
+            playerInput = 0;
+        }
         
         playerController.AnimationController.SetPlayerMovementSpeed(playerInput,isMovingObject,isPushing);
 
-        if(!isMovingObject)
-            playerController.AnimationController.SetPlayerMeshRotationBasedOnVelocity(velocity);
+        if(velocity.x != 0)
+        {
+            if(!isMovingObject)
+                    playerController.AnimationController.SetPlayerMeshRotationBasedOnVelocity(velocity);
+        }
 
         if(collisions.below)
         {
@@ -161,7 +175,7 @@ public class PlayerMovementController : Controller2D
 
         velocity.y += gravity * Time.deltaTime;
         Move(velocity * Time.deltaTime);
-        screenwrappingBehaviour.ScreenWrap();        
+        screenwrappingBehaviour.ScreenWrap();      
     }
     
     private bool GetIfPlayerIsPushingObject(float targetVelocity)
@@ -293,23 +307,33 @@ public class PlayerMovementController : Controller2D
     {
         movementState = MovementState.Frozen;
         velocity = Vector3.zero;
-        Move(velocity * Time.deltaTime);        
-        Debug.Log("Frozen");
+        Move(velocity * Time.deltaTime); 
     }
 
     private void UnFreezePlayerMovement()
     {
         CalculateRaySpacing();
         UpdateRaycastOrigins();
-        StartCoroutine(WaitToUnfreezePlayer());
+        StartCoroutine(WaitToUnfreezePlayer(0.1f));
     }
 
-    IEnumerator WaitToUnfreezePlayer()
+    IEnumerator WaitToUnfreezePlayer(float waitTime)
     {
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(waitTime);
         collisions.below = true;
         movementState = MovementState.Free;
         Debug.Log("UnFrozen");
+    }
+
+    private void HitByLightBeam()
+    {
+        playerController.AnimationController.SetPlayerHitByLightBeam();
+
+        movementState = MovementState.Frozen;
+        velocity = Vector3.zero;
+        playerController.InputController.LightBeamInteruppted();
+
+        StartCoroutine(WaitToUnfreezePlayer(1.1f));
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

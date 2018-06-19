@@ -48,4 +48,15 @@ public class PlayerAnimationController : MonoBehaviour
     {
         playerAnimator.SetBool("falling", isFalling);
     }
+
+    public void SetPlayerCastingLightBeam(bool isCasting)
+    {
+        playerAnimator.SetBool("isHitByLightBeam",false);
+        playerAnimator.SetBool("isCastingLightBeam",isCasting);
+    }
+
+    public void SetPlayerHitByLightBeam()
+    {
+        playerAnimator.SetBool("isHitByLightBeam",true);        
+    }
 }

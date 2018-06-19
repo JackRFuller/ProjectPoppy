@@ -9,7 +9,7 @@ public class LifeBellSoundwave : Soundwave
         if (other.tag == "DynamicPlatform")
         {
             if(!other.isTrigger)
-                other.SendMessage("HitByLifeBell",SendMessageOptions.DontRequireReceiver);
+                other.SendMessage("ActivateBehaviour",SendMessageOptions.DontRequireReceiver);
         }
     }
 }

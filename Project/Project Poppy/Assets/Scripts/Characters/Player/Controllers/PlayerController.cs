@@ -13,6 +13,9 @@ public class PlayerController : MonoBehaviour
     private PlayerAnimationController animationController;
     public PlayerAnimationController AnimationController {get { return animationController; }}
 
+    private PlayerLightGunHandler m_lightGunHandler;
+    public PlayerLightGunHandler LightGunHandler { get {return m_lightGunHandler;}}
+
     private Interactable interactable;
     public Interactable Interactable { get { return interactable;} }
 
@@ -21,6 +24,7 @@ public class PlayerController : MonoBehaviour
         movementController = GetComponent<PlayerMovementController>();
         animationController = GetComponent<PlayerAnimationController>();
         inputController = GetComponent<PlayerInputController>();
+        m_lightGunHandler = GetComponent<PlayerLightGunHandler>();
     }
 
     public void SetInteractable(Interactable _interactable)

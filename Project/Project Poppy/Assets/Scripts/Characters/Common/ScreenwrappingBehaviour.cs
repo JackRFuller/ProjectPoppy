@@ -8,8 +8,8 @@ public class ScreenwrappingBehaviour : MonoBehaviour
     private Controller2D controller;
 
     //Screen Wrapping
-    private bool isWrappingX = false;
-    private bool isWrappingY = false;
+    private bool m_isWrappingX = false;
+    private bool m_isWrappingY = false;
     private int wrappingCount = 0;    
 
     private void Start()
@@ -20,34 +20,70 @@ public class ScreenwrappingBehaviour : MonoBehaviour
     
     public void ScreenWrap()
     {
-        if (isVisible())
+        if(Manager.Instance.LevelManager.CameraController.ScrollingBehaviour.IsScrolling)
+            return;
+
+        if(isVisible())
         {
-            isWrappingX = false;
-            isWrappingY = false;
-            return;
-        }
+			m_isWrappingX = false;
+			m_isWrappingY = false;
+			return;
+		}
 
-        if(controller.collisions.fullyGrounded)
-            return;
-
-        if (isWrappingY && isWrappingX)
+        if (m_isWrappingY && m_isWrappingX)
             return;
 
-        Vector3 viewPortPosition = mainCamera.WorldToViewportPoint(this.transform.position);
+        
+        if(controller)
+        {
+            if(controller.collisions.fullyGrounded)
+                return;
+        }       
+
+		Vector3 viewPortPosition = mainCamera.WorldToViewportPoint(this.transform.position);
         Vector3 newPosition = this.transform.position;
 
+		float offset = 0.1f;
 
-        if (!isWrappingX && viewPortPosition.x > 1 || viewPortPosition.x < 0)
+        if (!m_isWrappingX && viewPortPosition.x > 1 || viewPortPosition.x < 0)
         {
-            newPosition.x = -newPosition.x + 1.5f;
-            isWrappingX = true;           
+			if(viewPortPosition.x < 0)
+			{
+				viewPortPosition.x = 1f;
+				offset = -offset;
+			}
+			else
+			{
+				viewPortPosition.x = 0f;
+			}			
+            m_isWrappingX = true;           
         }
 
-        if (!isWrappingY && viewPortPosition.y > 1 || viewPortPosition.y < 0)
+        if (!m_isWrappingY && viewPortPosition.y > 1 || viewPortPosition.y < 0)
         {
-            newPosition.y = -newPosition.y;
-            isWrappingY = true;            
-        }       
+			if(viewPortPosition.y < 0)
+			{
+				viewPortPosition.y = 1f;
+				offset = -offset;
+			}
+			else
+			{
+				viewPortPosition.y = 0f;
+			}           
+            m_isWrappingY = true;            
+        } 
+
+		newPosition = mainCamera.ViewportToWorldPoint(viewPortPosition);  
+
+		if(m_isWrappingY)
+		{
+			newPosition.y += offset;
+		}
+
+		if(m_isWrappingX)
+		{
+			newPosition.x += offset;
+		}       
 
         this.transform.position = newPosition;        
     }

@@ -51,9 +51,8 @@ public class CameraMovementBehaviour : CameraBehaviour
 
         if(startedMoving != null)
             startedMoving();
-
-        Debug.Log("Moving");
-        Debug.Log(lerpingAttributes.pointA + " + " + lerpingAttributes.pointB);
+      
+        //Debug.Log(lerpingAttributes.pointA + " + " + lerpingAttributes.pointB);
     }
 
     private void Update()
