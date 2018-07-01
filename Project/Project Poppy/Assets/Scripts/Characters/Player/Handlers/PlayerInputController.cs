@@ -14,6 +14,8 @@ public class PlayerInputController : PlayerBehaviourHandler
     private bool m_isFiringLightGun;
     public bool IsFiringLightGun {get {return m_isFiringLightGun;}}
 
+    private Vector2 m_directionalInput;
+
     protected override void Start()
     {
         base.Start();
@@ -30,16 +32,18 @@ public class PlayerInputController : PlayerBehaviourHandler
 
         InteractInput();
      
-        BellInput();
+        //BellInput();
 
-        LightGunInput();
+        //LightGunInput();
+
+        HammerInput();
     }
 
     private void MoveInput()
     {
-        Vector2 directionalInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        m_directionalInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         if(playerController.MovementController)
-            playerController.MovementController.SetDirectionInput(directionalInput);
+            playerController.MovementController.SetDirectionInput(m_directionalInput);
     }  
     
     private void InteractInput()
@@ -59,6 +63,44 @@ public class PlayerInputController : PlayerBehaviourHandler
         else
         {
             isInteracting = false;
+        }
+    }
+
+    private void HammerInput()
+    {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            if(m_directionalInput == Vector2.zero)
+            {
+
+            }
+            else
+            {
+                if(m_directionalInput.x != 0 && m_directionalInput.y != 0)
+                    return;
+
+                float orientation = playerController.MovementController.GetObjectOrientation();
+
+                if(orientation == 0 && m_directionalInput.y == -1)
+                {
+                    return;
+                }
+                else if(orientation == 180 && m_directionalInput.y == 1)
+                {
+                    return;
+                }
+                else if(orientation == 90 && m_directionalInput.x == 1)
+                {
+                    return;
+                }
+                else if(orientation == 270 && m_directionalInput.x == -1)
+                {
+                    return;
+                }
+
+                Vector2 throwDirection = m_directionalInput;                
+                playerController.HammerActionHandler.ThrowHammer(throwDirection);
+            }
         }
     }
 

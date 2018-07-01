@@ -303,14 +303,14 @@ public class PlayerMovementController : Controller2D
         movementState = MovementState.Free;
     }
 
-    private void FreezePlayerMovement()
+    public void FreezePlayerMovement()
     {
         movementState = MovementState.Frozen;
         velocity = Vector3.zero;
         Move(velocity * Time.deltaTime); 
     }
 
-    private void UnFreezePlayerMovement()
+    public void UnFreezePlayerMovement()
     {
         CalculateRaySpacing();
         UpdateRaycastOrigins();

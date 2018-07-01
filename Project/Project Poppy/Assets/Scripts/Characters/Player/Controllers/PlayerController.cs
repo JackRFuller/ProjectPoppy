@@ -5,26 +5,27 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private PlayerInputController inputController;
-    public PlayerInputController InputController { get { return inputController;} }
+    private PlayerAnimationController animationController;
+    private PlayerLightGunHandler m_lightGunHandler;
+    private PlayerHammerThrowHandler m_hammerActionHandler;
+    private Interactable interactable;
+
     
     private PlayerMovementController movementController;
     public PlayerMovementController MovementController{get{return movementController;}}
-
-    private PlayerAnimationController animationController;
-    public PlayerAnimationController AnimationController {get { return animationController; }}
-
-    private PlayerLightGunHandler m_lightGunHandler;
+    public PlayerAnimationController AnimationController {get { return animationController; }}    
     public PlayerLightGunHandler LightGunHandler { get {return m_lightGunHandler;}}
-
-    private Interactable interactable;
+    public PlayerInputController InputController { get { return inputController;} }
+    public PlayerHammerThrowHandler HammerActionHandler {get {return m_hammerActionHandler;}}
     public Interactable Interactable { get { return interactable;} }
 
-    private void Start()
+    private void Awake()
     {
         movementController = GetComponent<PlayerMovementController>();
         animationController = GetComponent<PlayerAnimationController>();
         inputController = GetComponent<PlayerInputController>();
         m_lightGunHandler = GetComponent<PlayerLightGunHandler>();
+        m_hammerActionHandler = GetComponent<PlayerHammerThrowHandler>();
     }
 
     public void SetInteractable(Interactable _interactable)

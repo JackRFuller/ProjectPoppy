@@ -59,4 +59,22 @@ public class PlayerAnimationController : MonoBehaviour
     {
         playerAnimator.SetBool("isHitByLightBeam",true);        
     }
+
+    public void PlayerStandUp()
+    {
+        playerAnimator.SetTrigger("StandUp");
+    }
+
+    public void SetDebugIntroStance(bool setToIdle)
+    {
+        if(setToIdle)
+        {
+            playerAnimator.SetBool("DebugIdle",setToIdle);
+        }
+        else
+        {
+            playerAnimator.SetBool("LieDown",true);
+        }
+       
+    }
 }

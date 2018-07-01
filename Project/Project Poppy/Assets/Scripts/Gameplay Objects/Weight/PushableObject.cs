@@ -13,13 +13,43 @@ public class PushableObject : Controller2D
 
     private float input;
 
+    private bool m_pushedByProjectile;
+
     public void SetDirectionInput(float _input)
     {
         input = _input;
     }
 
+    private void HitByProjectile(Vector2 direction)
+    {
+        float orientation = GetObjectOrientation();
+
+        if(direction.x != 0)
+        {
+            if(orientation == 0 || orientation == 180)
+            {
+                input = direction.x * 10;
+                m_pushedByProjectile = true;
+            }
+        }
+        if(direction.y != 0)
+        {
+             if(orientation == 90 || orientation == 270)
+            {
+                input = direction.y * 10;
+                m_pushedByProjectile = true;
+            }
+        }
+    }
+
     private void Update()
     {
+        if(collisions.right || collisions.left)
+        {
+            input = 0;
+            m_pushedByProjectile = false;
+        }
+
         if (collisions.above || collisions.below)
         {
             velocity.y = 0;
@@ -32,8 +62,12 @@ public class PushableObject : Controller2D
         Move(velocity * Time.deltaTime);
         screenwrappingBehaviour.ScreenWrap();
 
-        velocity.x = 0;
-        input = 0;
+        if(!m_pushedByProjectile)
+        {
+            velocity.x = 0;
+            input = 0;
+        }
+      
     }
 
     public bool HasDetectedPlayer()

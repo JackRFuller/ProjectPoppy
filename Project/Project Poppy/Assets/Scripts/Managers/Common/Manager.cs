@@ -14,17 +14,14 @@ public class Manager : MonoBehaviour
     }
 
     //Managers
-    private LevelManager levelManager;
-    public LevelManager LevelManager
-    {
-        get
-        {
-            return levelManager;
-        }
-    }
+    private LevelManager levelManager; 
+    private UIManager uiManager;    
+    private GameEventView m_gameEventView;
 
-    private UIManager uiManager;
+    public GameEventView GameEventView {get {return m_gameEventView;}}    
     public UIManager UIManager { get { return  uiManager;} }
+    public LevelManager LevelManager {get {return levelManager;}} 
+
 
     private void Awake()
     {
@@ -38,9 +35,11 @@ public class Manager : MonoBehaviour
         }
     }
 
+
     private void Start()
     {
         levelManager = GetComponent<LevelManager>();
         uiManager = GetComponent<UIManager>();
+        m_gameEventView = GetComponent<GameEventView>();
     }
 }
