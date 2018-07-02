@@ -14,5 +14,5 @@ MonoBehaviour:
   levelGeometry: {fileID: 1781244428763890, guid: 96813456630a7fb4b92ef43f91c38e9a,
     type: 2}
   levelIndex: {x: 3, y: 0}
-  levelSpawnPoint: {x: 100.5, y: 0}
+  levelSpawnPoint: {x: 105, y: 0}
   levelRotation: {x: 0, y: 0}

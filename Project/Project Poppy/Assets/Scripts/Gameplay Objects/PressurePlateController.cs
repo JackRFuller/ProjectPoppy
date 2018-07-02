@@ -6,7 +6,7 @@ using UnityEngine;
 public class PressurePlateController : MonoBehaviour
 {
     [SerializeField]
-    private TeleportController[] linkedDoors;
+    private PlatformController[] m_linkedPlatforms;
 
     private AudioSource plateAudio;
     private Animator plateAnimator;
@@ -25,11 +25,11 @@ public class PressurePlateController : MonoBehaviour
             isActive = true;
             plateAnimator.SetBool("Activated", isActive);
             plateAudio.Play();
-
-            for (int i = 0; i < linkedDoors.Length; i++)
+            
+            for(int i = 0; i < m_linkedPlatforms.Length; i++)
             {
-                linkedDoors[i].KeyActivated();
-            }
+                m_linkedPlatforms[i].ActivateBehaviour();
+            }           
         }       
     }
 
@@ -41,10 +41,10 @@ public class PressurePlateController : MonoBehaviour
             plateAnimator.SetBool("Activated", isActive);
             plateAudio.Play();
 
-            for (int i = 0; i < linkedDoors.Length; i++)
+            for(int i = 0; i < m_linkedPlatforms.Length; i++)
             {
-                linkedDoors[i].KeyDeactivated();
-            }
+                m_linkedPlatforms[i].ActivateBehaviour();
+            }    
         }
         
     }

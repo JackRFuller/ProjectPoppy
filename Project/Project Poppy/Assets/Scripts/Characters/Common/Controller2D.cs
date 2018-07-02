@@ -25,11 +25,12 @@ public class Controller2D : RaycastController
         Vector2 newOffset = Vector2.zero;
         Vector2 newSize = new Vector2(objCollider.size.x + sizeToAdd,objCollider.size.y);
         
-        newOffset.x = newSize.x - (sizeToAdd - 0.1f);
+        //newOffset.x = newSize.x - (sizeToAdd - 0.1f);
 
         if(movementDirection == -1)
         {
-            newOffset = -newOffset;
+           // newOffset = -newOffset;
+            Debug.Log("Negative");
         }
         else
         {

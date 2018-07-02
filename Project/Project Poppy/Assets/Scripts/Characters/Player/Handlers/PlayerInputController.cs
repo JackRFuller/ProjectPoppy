@@ -36,7 +36,7 @@ public class PlayerInputController : PlayerBehaviourHandler
 
         //LightGunInput();
 
-        HammerInput();
+        //HammerInput();
     }
 
     private void MoveInput()

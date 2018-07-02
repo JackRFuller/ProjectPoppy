@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PushableObject : Controller2D
 {
+    private PlayerController m_player;
+
     [SerializeField]
     private float gravity = -6f;
 
@@ -105,7 +107,11 @@ public class PushableObject : Controller2D
                    
                     if (distance > 0.80f)
                     {
-                        return true;
+                        if(m_player == null)
+                            m_player = hit.transform.GetComponent<PlayerController>();
+
+                        if(m_player.MovementController.collisions.fullyGrounded)
+                            return true;
                     }
                 }
             }

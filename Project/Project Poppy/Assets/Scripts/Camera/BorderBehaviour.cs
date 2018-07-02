@@ -9,7 +9,7 @@ public class BorderBehaviour : Entity
     
     public void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.tag == "Character")
+        if (other.tag == "Player")
         {
             Vector3 playerPosition = other.transform.position;
 
@@ -22,7 +22,7 @@ public class BorderBehaviour : Entity
 
     public void OnTriggerExit2D(Collider2D other)
     {
-        if (other.tag == "Character")
+        if (other.tag == "Player")
         {
             cameraController.ScrollingBehaviour.TurnOffDirectionIndicator(borderIndex);
         }

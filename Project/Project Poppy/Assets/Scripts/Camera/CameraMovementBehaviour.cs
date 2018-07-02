@@ -11,7 +11,7 @@ public class CameraMovementBehaviour : CameraBehaviour
     [SerializeField]
     private Vector3Lerping lerpingAttributes;
 
-    private const float xOffset = 35.5f;
+    private const float xOffset = 35.0f;
     private const float yOffset = 16.0f;
 
     /// <summary>
@@ -52,6 +52,9 @@ public class CameraMovementBehaviour : CameraBehaviour
         if(startedMoving != null)
             startedMoving();
       
+        Debug.Log(lerpingAttributes.pointB);
+
+
         //Debug.Log(lerpingAttributes.pointA + " + " + lerpingAttributes.pointB);
     }
 
@@ -69,6 +72,8 @@ public class CameraMovementBehaviour : CameraBehaviour
 
         if (percentageComplete >= 1.0f)
         {
+            SetPosition(lerpingAttributes.pointB);
+
             TurnOffComponent();
 
             if (reachDestination != null)
